@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Gif, SearchGifsResponse } from '../interface/gifs.interface';
 
@@ -8,7 +8,11 @@ import { Gif, SearchGifsResponse } from '../interface/gifs.interface';
 export class GifsService {
   private _historial: string[] = [];
   private apiKey: string = '1I3EAF0nVQhtxo7rnQBLEjNo8w1zoqEt';
+  private sercicioURL = 'https://api.giphy.com/v1/gifs'
+
   public resultados: Gif[] = [];
+
+
 
   constructor(private http: HttpClient) {
     this._historial = JSON.parse(localStorage.getItem('historial')!) || [];
@@ -23,6 +27,11 @@ export class GifsService {
 
     query = query.trim().toLocaleLowerCase();
 
+    const params = new HttpParams()
+      .set('api_key', this.apiKey)
+      .set('limit', '10')
+      .set('q', query)
+
     // verificamos si alguna palabra esta incluida para no repetir
     // agregamos al arreglo
     // guardamos solo 10
@@ -33,7 +42,7 @@ export class GifsService {
       localStorage.setItem('historial', JSON.stringify(this._historial))
     }
 
-    this.http.get<SearchGifsResponse>(`https://api.giphy.com/v1/gifs/search?api_key=1I3EAF0nVQhtxo7rnQBLEjNo8w1zoqEt&q=${query}&limit=10`)
+    this.http.get<SearchGifsResponse>(`${this.sercicioURL}/search`, { params })
       .subscribe(resp => {
         this.resultados = resp.data;
         localStorage.setItem('resultados', JSON.stringify(this.resultados))
